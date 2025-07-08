@@ -115,6 +115,7 @@ useEffect Hook 可以让你在函数组件中执行副作用操作...`,
       excerpt: '深入了解 React Hooks 的使用方法和最佳实践，包括 useState、useEffect 等核心 Hook 的详细讲解。',
       category: '前端开发',
       tags: JSON.stringify(['React', 'Hooks', 'JavaScript']),
+      readTime: '5 min read',
       authorId: owner.id,
       isPublished: true
     },
@@ -144,6 +145,7 @@ TypeScript 为 JavaScript 带来了类型安全，让大型项目的开发更加
       excerpt: '分享在实际项目中使用 TypeScript 的经验和技巧，帮助开发者写出更健壮的代码。',
       category: '编程语言',
       tags: JSON.stringify(['TypeScript', '最佳实践', '类型安全']),
+      readTime: '12 min read',
       authorId: owner.id,
       isPublished: true
     },
@@ -166,6 +168,7 @@ Next.js 13 引入了新的 App Router...`,
       excerpt: '从零开始构建 Next.js 全栈应用，涵盖前端开发、API 路由、数据库集成等各个方面。',
       category: '全栈开发',
       tags: JSON.stringify(['Next.js', '全栈开发', 'React']),
+      readTime: '8 min read',
       authorId: editor.id,
       isPublished: true
     }

@@ -17,26 +17,24 @@ declare global {
 const authService = new AuthService()
 
 // 认证中间件
-export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
+export const authenticateToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    // 获取Authorization头
     const authHeader = req.headers.authorization
     const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null
 
     if (!token) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: {
           code: 'NO_TOKEN',
           message: '请提供认证token'
         }
       })
+      return
     }
 
-    // 验证token
     const payload = authService.verifyToken(token)
     
-    // 将用户信息添加到请求对象
     req.user = {
       userId: payload.userId,
       email: payload.email,
@@ -46,16 +44,17 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
     next()
   } catch (error) {
     if (error instanceof AuthError) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: {
           code: error.code,
           message: error.message
         }
       })
+      return
     }
 
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       error: {
         code: 'SERVER_ERROR',
@@ -91,26 +90,29 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
 }
 
 // 角色检查中间件
+// 修复requireRole函数
 export const requireRole = (roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: {
           code: 'NOT_AUTHENTICATED',
           message: '请先登录'
         }
       })
+      return
     }
 
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
+      res.status(403).json({
         success: false,
         error: {
           code: 'INSUFFICIENT_PERMISSIONS',
           message: '权限不足'
         }
       })
+      return
     }
 
     next()

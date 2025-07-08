@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express'
+import { Router, Request, Response, NextFunction } from 'express'
 import { ArticleService, ArticleError } from '../services/article.service'
 import { authenticateToken, optionalAuth } from '../middleware/auth.middleware'
 import { z } from 'zod'
@@ -45,22 +45,31 @@ const handleError = (error: unknown, res: Response) => {
 }
 
 // 查询参数解析中间件
-const parseQueryParams = (req: Request, res: Response, next: any) => {
+const parseQueryParams = (req: Request, res: Response, next: NextFunction): void => {
   try {
+    // 创建一个新的查询对象，而不是直接修改req.query
+    const query = { ...req.query }
+    
     // 解析数字参数
-    if (req.query.page) req.query.page = parseInt(req.query.page as string)
-    if (req.query.pageSize) req.query.pageSize = parseInt(req.query.pageSize as string)
+    if (query.page) {
+      (query as any).page = parseInt(query.page as string)
+    }
+    if (query.pageSize) {
+      (query as any).pageSize = parseInt(query.pageSize as string)
+    }
     
     // 解析布尔参数
-    if (req.query.isPublished !== undefined) {
-      req.query.isPublished = req.query.isPublished === 'true'
+    if (query.isPublished !== undefined) {
+      (query as any).isPublished = query.isPublished === 'true'
     }
     
     // 解析标签数组
-    if (req.query.tags && typeof req.query.tags === 'string') {
-      req.query.tags = req.query.tags.split(',').map(tag => tag.trim())
+    if (query.tags && typeof query.tags === 'string') {
+      (query as any).tags = query.tags.split(',').map(tag => tag.trim())
     }
     
+    // 将解析后的查询参数重新赋值
+    req.query = query
     next()
   } catch (error) {
     handleError(error, res)
@@ -110,18 +119,19 @@ router.get('/tags', async (req: Request, res: Response) => {
 })
 
 // GET /api/articles/:id - 通过ID获取文章
-router.get('/:id', optionalAuth, async (req: Request, res: Response) => {
+router.get('/:id', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   try {
     const article = await articleService.getArticleById(req.params.id)
     
     if (!article) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: {
           code: 'ARTICLE_NOT_FOUND',
           message: '文章不存在'
         }
       })
+      return
     }
     
     res.json({
@@ -134,18 +144,19 @@ router.get('/:id', optionalAuth, async (req: Request, res: Response) => {
 })
 
 // GET /api/articles/slug/:slug - 通过slug获取文章
-router.get('/slug/:slug', optionalAuth, async (req: Request, res: Response) => {
+router.get('/slug/:slug', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   try {
     const article = await articleService.getArticleBySlug(req.params.slug)
     
     if (!article) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: {
           code: 'ARTICLE_NOT_FOUND',
           message: '文章不存在'
         }
       })
+      return
     }
     
     res.json({

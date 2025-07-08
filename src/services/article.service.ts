@@ -38,7 +38,23 @@ export type UpdateArticleData = z.infer<typeof updateArticleSchema>
 export type ArticleQuery = z.infer<typeof articleQuerySchema>
 
 // 返回类型
-export interface ArticleWithAuthor extends Article {
+export interface ArticleWithAuthor {
+  id: string
+  title: string
+  slug: string
+  content: string
+  excerpt: string | null
+  category: string
+  tags: string[]  // 这里应该是string[]
+  imageUrl: string | null
+  isPublished: boolean
+  publishDate: Date
+  readTime: string
+  viewCount: number
+  likeCount: number
+  createdAt: Date
+  updatedAt: Date
+  authorId: string
   author: Pick<User, 'id' | 'username' | 'displayName' | 'avatar'>
 }
 
